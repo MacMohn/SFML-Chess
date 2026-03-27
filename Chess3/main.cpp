@@ -9,17 +9,19 @@ int main()
 {
     Game game(winWidth, winHeight);
     sf::RenderWindow window(sf::VideoMode({ winWidth, winHeight}), "SFML works!");
+    std::optional<sf::Event> event;
 
     while (window.isOpen())
     {
-        while (const std::optional event = window.pollEvent())
+        while (event = window.pollEvent())
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
+            game.Update(window, event);
         }
 
         window.clear(bg);
-        game.Update(window);
+        game.Update(window, std::nullopt);
         game.Draw(window);
         window.display();
     }

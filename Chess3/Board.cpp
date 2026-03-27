@@ -13,7 +13,7 @@ void Board::GenerateBoard()
 	{
 		for (int row = 0; row < 8; row++)
 		{
-			Square& sq = gameBoard[row][col];
+			Square& sq = gameBoard[col][row];
 
 			if ((row + col) % 2 == 0)
 			{
