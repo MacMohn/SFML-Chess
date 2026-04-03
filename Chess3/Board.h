@@ -22,10 +22,11 @@ public:
 
 	std::vector<std::vector<Square>> gameBoard{ 8, std::vector<Square>(8) };
 
+	int sqCount = 8;
 	sf::Vector2f sqSize = { 100.f, 100.f };
 	sf::Vector2f topLeftBoard;
 	sf::Vector2f bottomRightBoard;
-	sf::Vector2f boardSize = {sqSize.x * 8, sqSize.y * 8};
+	sf::Vector2f boardSize = {sqSize.x * sqCount, sqSize.y * sqCount};
 
 	sf::Color black = sf::Color::Black;
 	sf::Color white = sf::Color::White;

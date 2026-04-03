@@ -21,6 +21,7 @@ public:
 
 	PieceType type;
 	PieceColor color;
+	bool hasMoved = false;
 
 	sf::Sprite sprite;
 

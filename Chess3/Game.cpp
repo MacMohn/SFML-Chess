@@ -4,9 +4,7 @@
 Game::Game(int winWidth, int winHeight) : board(winWidth, winHeight)
 {
     LoadTextures();
-    InitPieces();
-
-    
+    InitPieces();    
 }
 
 void Game::InitPieces()
@@ -73,15 +71,12 @@ void Game::Update(sf::RenderWindow& window, std::optional<sf::Event> e)
 {
     auto mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     MouseBoardPos(mousePos);
-    if(e && e->is<sf::Event::MouseButtonPressed>())
+    if (SelectPiece(e))
     {
-        mouse1Pressed = e->getIf<sf::Event::MouseButtonPressed>()->button == leftMouse;
-        mouse2Pressed = e->getIf<sf::Event::MouseButtonPressed>()->button == rightMouse;
+        //ensure event isn't read by next function
+        return;
     }
-   
-    SelectPiece(e);
     HoldingPiece(e, mousePos);
- 
 }
 
 sf::Vector2f Game::CenterPieceOnMouse(sf::Vector2f pos)
@@ -91,7 +86,6 @@ sf::Vector2f Game::CenterPieceOnMouse(sf::Vector2f pos)
 
 void Game::MouseBoardPos(sf::Vector2f pos)
 {
-
     tileX = floor((pos.x - board.topLeftBoard.x) / board.sqSize.x);
     tileY = floor((pos.y - board.topLeftBoard.y) / board.sqSize.y);
 
@@ -106,7 +100,7 @@ void Game::MouseBoardPos(sf::Vector2f pos)
     }
 }
 
-void Game::SelectPiece(std::optional<sf::Event> e)
+bool Game::SelectPiece(std::optional<sf::Event> e)
 {
     if (!selectedPiece && mouseOnBoard)
     {
@@ -116,8 +110,11 @@ void Game::SelectPiece(std::optional<sf::Event> e)
             selectedPiece = board.gameBoard[tileX][tileY].piece;
             prevTileX = tileX;
             prevTileY = tileY;
+
+            return true;
         }
     }
+    return false;
 }
 
 void Game::HoldingPiece(std::optional<sf::Event> e, sf::Vector2f mousePos)
@@ -125,26 +122,22 @@ void Game::HoldingPiece(std::optional<sf::Event> e, sf::Vector2f mousePos)
     if (selectedPiece)
     {
         selectedPiece->sprite.setPosition(CenterPieceOnMouse(mousePos));
-        if (mouse2Pressed)
+        if (e && e->is<sf::Event::MouseButtonPressed>())
         {
-            selectedPiece->sprite.setPosition(previousSq->shape.getPosition());
-            selectedPiece = nullptr;
-        }
-        else if ((e && e->is<sf::Event::MouseButtonPressed>()) && mouseOnBoard)
-        {
-            if (board.gameBoard[tileX][tileY].piece == nullptr && mouse1Pressed)
+            auto* eventM = e->getIf<sf::Event::MouseButtonPressed>();
+            if (eventM->button == rightMouse)
+            {
+                selectedPiece->sprite.setPosition(previousSq->shape.getPosition());
+                selectedPiece = nullptr;
+            }
+            else if (mouseOnBoard && eventM->button == leftMouse)
             {
                 std::cout << "TileX: " << tileX << "\nTileY: " << tileY << std::endl;
-                if (selectedPiece->type == PieceType::Pawn)
+
+                if (AllPieceLogic() == true)
                 {
-                    if (Pawnlogic())
-                    {
-                        MovePiece();
-                    }
-                    else
-                    {
-                        std::cout << "false\n";
-                    }
+                    MovePiece();
+                    pieceOnTile = nullptr;
                 }
             }
         }
@@ -153,22 +146,169 @@ void Game::HoldingPiece(std::optional<sf::Event> e, sf::Vector2f mousePos)
 
 void Game::MovePiece()
 {
+    std::cout << "move Piece\n";
     board.gameBoard[tileX][tileY].piece = selectedPiece;
     selectedPiece->sprite.setPosition(board.gameBoard[tileX][tileY].shape.getPosition());
     selectedPiece = nullptr;
     previousSq->piece = nullptr;
 }
 
+bool Game::AllPieceLogic()
+{
+    pType = selectedPiece->type;
+    switch (pType)
+    {
+    case PieceType::Pawn:
+        return Pawnlogic();
+    case PieceType::Bishop:
+        return Bishoplogic();
+    case PieceType::Knight:
+        return Knightlogic();
+    case PieceType::Rook:
+        return Rooklogic();
+    case PieceType::Queen:
+        return Queenlogic();
+    case PieceType::King:
+        return Kinglogic();
+    default: std::cout << "Piece type N/A\n";
+        return false;
+    }
+    
+}
+
 bool Game::Pawnlogic()
 {
-    if (tileY == prevTileY - 1 && tileX == prevTileX)
+    pieceOnTile = board.gameBoard[tileX][tileY].piece;
+    if (selectedPiece->color == PieceColor::White)
     {
-        return true;
+        if (tileY == prevTileY - 2 && tileX == prevTileX && selectedPiece->hasMoved == false)
+        {
+            std::cout << "Cond 1: \n";
+            selectedPiece->hasMoved = true;
+            return true;
+        }
+        else if (tileY == prevTileY - 1 && tileX == prevTileX && pieceOnTile == nullptr)
+        {
+            std::cout << "Cond 2: \n";
+
+            selectedPiece->hasMoved = true;
+            return true;
+        }
+        else if (pieceOnTile != nullptr && pieceOnTile->color == PieceColor::Black 
+            && (tileY == prevTileY - 1)
+            && (tileX == prevTileX + 1 || tileX == prevTileX - 1))
+        {
+            std::cout << "Cond 3: \n";
+            board.gameBoard[tileX][tileY].piece->sprite.setScale({ .35, .35 });
+            board.gameBoard[tileX][tileY].piece->sprite.setPosition({50, 900});
+            board.gameBoard[tileX][tileY].piece = nullptr;
+            selectedPiece->hasMoved = true;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
-        return false;
+        if (tileY == prevTileY + 2 && tileX == prevTileX && selectedPiece->hasMoved == false)
+        {
+            selectedPiece->hasMoved = true;
+            return true;
+        }
+        else if (tileY == prevTileY + 1 && tileX == prevTileX && pieceOnTile == nullptr)
+        {
+            selectedPiece->hasMoved = true;
+            return true;
+        }
+        else if (pieceOnTile != nullptr && pieceOnTile->color == PieceColor::White 
+            && (tileY == prevTileY + 1
+            && (tileX == prevTileX + 1 || tileX == prevTileX - 1)))
+        {
+            board.gameBoard[tileX][tileY].piece->sprite.setScale({ .35, .35 });
+            board.gameBoard[tileX][tileY].piece->sprite.setPosition({ 50, 180 });
+            board.gameBoard[tileX][tileY].piece = nullptr;
+            selectedPiece->hasMoved = true;
+            return true;
+
+        }
+        else
+        {
+            return false;
+        }
     }
+}
+
+bool Game::Bishoplogic()
+{
+    return false;
+}
+
+bool Game::Knightlogic()
+{
+
+    if (((tileX == prevTileX + 1 || tileX == prevTileX - 1)
+        && (tileY == prevTileY - 2) || tileY == prevTileY + 2) || 
+        ((tileX == prevTileX + 2 || tileX == prevTileX - 2)
+        && (tileY == prevTileY - 1 || tileY == prevTileY + 1)))
+    {
+        if (board.gameBoard[tileX][tileY].piece == nullptr)
+        {
+            return true;
+        }
+        else if (selectedPiece->color != board.gameBoard[tileX][tileY].piece->color)
+        {
+            board.gameBoard[tileX][tileY].piece->sprite.setPosition({ 300, 300 });
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Game::Rooklogic()
+{
+    return true;
+}
+
+bool Game::Kinglogic()
+{
+    return false;
+}
+
+bool Game::Queenlogic()
+{
+    int maxTileUp = 0;
+    int maxTileDown = 0;
+    //moveUp
+    for (int i = prevTileY - 1; i >= 0; i--)
+    {
+        if (board.gameBoard[tileX][i].piece == nullptr)
+        {
+            maxTileUp++;
+        }
+        else { break; }
+    }
+    //moveDown
+    for (int i = prevTileY + 1; i < board.sqCount; i++)
+    {
+        if (board.gameBoard[tileX][i].piece == nullptr)
+        {
+            maxTileDown++;
+        }
+        else { break; }
+    }
+
+    if (tileX == prevTileX && prevTileY - tileY <= maxTileUp && tileY < prevTileY)
+    {
+        return true;
+    }
+    else if (tileX == prevTileX && tileY - prevTileY <= maxTileDown && tileY > prevTileY)
+    {
+        return true;
+    }
+    else { return false; }
+
 }
 
 void Game::LoadTextures()

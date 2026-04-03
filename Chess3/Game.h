@@ -16,13 +16,22 @@ public:
 
 	sf::Vector2f CenterPieceOnMouse(sf::Vector2f pos);
 	void MouseBoardPos(sf::Vector2f pos);
-	void SelectPiece(std::optional<sf::Event> e);
+	bool SelectPiece(std::optional<sf::Event> e);
 	void HoldingPiece(std::optional<sf::Event> e, sf::Vector2f mousePos);
 	void MovePiece();
+
+	PieceType pType;
+	bool AllPieceLogic();
 	bool Pawnlogic();
+	bool Bishoplogic();
+	bool Knightlogic();
+	bool Rooklogic();
+	bool Kinglogic();
+	bool Queenlogic();
 
 	std::vector<std::unique_ptr<Piece>> allPieces;
 	Piece* selectedPiece = nullptr;
+	Piece* pieceOnTile = nullptr;
 	Square* previousSq = nullptr;
 	Square* mouseSq = nullptr;
 	

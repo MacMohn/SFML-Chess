@@ -3,7 +3,7 @@
 
 unsigned int winWidth = 1920.f;
 unsigned int winHeight = 1080.f;
-const sf::Color bg(sf::Color::Black);
+const sf::Color bg({150, 150, 150});
 
 int main()
 {
