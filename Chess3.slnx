@@ -3,5 +3,8 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="TODO.txt" />
+  </Folder>
   <Project Path="Chess3/Chess3.vcxproj" Id="338dd6bf-1568-4951-ad12-f693c45b36fb" />
 </Solution>

@@ -19,6 +19,7 @@ public:
 	void GenerateBoard();
 	void Draw(sf::RenderWindow& window);
 	bool ContainsPoint(sf::Vector2f point);
+	void pOnBoardIndication();
 
 	std::vector<std::vector<Square>> gameBoard{ 8, std::vector<Square>(8) };
 
@@ -28,10 +29,16 @@ public:
 	sf::Vector2f bottomRightBoard;
 	sf::Vector2f boardSize = {sqSize.x * sqCount, sqSize.y * sqCount};
 
+	sf::Color customColor;
 	sf::Color black = sf::Color::Black;
 	sf::Color white = sf::Color::White;
 	sf::Color yellow = sf::Color(238, 255, 160);
 	sf::Color green = sf::Color(57, 143, 10);
+
+	float hue = 0.f;
+	float t = 0.f;
+	int col = 0;
+	int row = 0;
 
 };
 

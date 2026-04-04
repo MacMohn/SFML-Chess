@@ -9,9 +9,9 @@ Board::Board(int winWidth, int winHeight)
 
 void Board::GenerateBoard()
 {
-	for (int col = 0; col < 8; col++)
+	for (col = 0; col < 8; col++)
 	{
-		for (int row = 0; row < 8; row++)
+		for (row = 0; row < 8; row++)
 		{
 			Square& sq = gameBoard[col][row];
 
@@ -23,8 +23,9 @@ void Board::GenerateBoard()
 			{
 				sq.shape.setFillColor(green);
 			}
-			 
-			sq.shape.setOutlineColor(sf::Color::Black);
+			
+				sq.shape.setOutlineColor(sf::Color::Black);
+
 			sq.shape.setOutlineThickness(-1.5f);
 			sq.shape.setSize(sqSize);
 			sq.shape.setPosition({ topLeftBoard.x + sqSize.x * col, topLeftBoard.y + sqSize.y * row });
@@ -52,5 +53,16 @@ bool Board::ContainsPoint(sf::Vector2f point)
 		point.x < bottomRightBoard.x &&
 		point.y > topLeftBoard.y &&
 		point.y < bottomRightBoard.y;
+}
+
+void Board::pOnBoardIndication()
+{
+	for (auto& col : gameBoard)
+	{
+		//for (auto row : col)
+		//{
+		//	if (gameBoard[col][row])
+		//}
+	}
 }
 

@@ -1,0 +1,3 @@
+I should use a black square to signify which squares on the board have pieces on them
+
+QueenLogic() is looking out of vector range
