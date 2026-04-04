@@ -77,35 +77,35 @@ void Game::Update(sf::RenderWindow& window, std::optional<sf::Event> e)
     }
     HoldingPiece(e, mousePos);
 
-    for (int x = 0; x < 8; x++)
-    {
-        for (int y = 0; y < 8; y++)
-        {
-            Square& sq = board.gameBoard[x][y];
+    //for (int x = 0; x < 8; x++)
+    //{
+    //    for (int y = 0; y < 8; y++)
+    //    {
+    //        Square& sq = board.gameBoard[x][y];
 
-            if (sq.piece != nullptr)
-            {
-                int yel = 150;
-                // static darker shade
-                if ((x + y) % 2 == 0)
-                {
-                    sq.shape.setFillColor(sf::Color(yel, yel, 100));
-                }
-                else
-                {
-                    sq.shape.setFillColor(sf::Color(80, 180, 0));
-                }
-            }
-            else
-            {
-                // checkerboard original color
-                if ((x + y) % 2 == 0)
-                    sq.shape.setFillColor(board.yellow);
-                else
-                    sq.shape.setFillColor(board.green);
-            }
-        }
-    }
+    //        if (sq.piece != nullptr)
+    //        {
+    //            int yel = 150;
+    //            // static darker shade
+    //            if ((x + y) % 2 == 0)
+    //            {
+    //                sq.shape.setFillColor(sf::Color(yel, yel, 100));
+    //            }
+    //            else
+    //            {
+    //                sq.shape.setFillColor(sf::Color(80, 180, 0));
+    //            }
+    //        }
+    //        else
+    //        {
+    //            // checkerboard original color
+    //            if ((x + y) % 2 == 0)
+    //                sq.shape.setFillColor(board.yellow);
+    //            else
+    //                sq.shape.setFillColor(board.green);
+    //        }
+    //    }
+    //}
 }
 
 sf::Vector2f Game::CenterPieceOnMouse(sf::Vector2f pos)
@@ -342,7 +342,7 @@ bool Game::Queenlogic() //TODO: I think up down and left right could each be in 
         }
         else { break; }
     }
-    for (int i = prevTileX - 1; i >= 0; i--)
+    for (int i = prevTileX - 1; i >= 0; i--)//moveLeft
     {
         if (board.gameBoard[i][tileY].piece == nullptr)
         {
@@ -351,8 +351,7 @@ bool Game::Queenlogic() //TODO: I think up down and left right could each be in 
         else { break; }
     }
 
-    sf::Vector2i start = {prevTileX, prevTileY};
-    for (sf::Vector2i i = {start.x - 1, start.y - 1}; i.y >= 0 && i.x >= 0; i.y--, i.x--)//upLeft
+    for (sf::Vector2i i = {prevTileX - 1, prevTileY - 1}; i.y >= 0 && i.x >= 0; i.x--, i.y--)//upLeft
     {
         if (board.gameBoard[i.x][i.y].piece == nullptr)
         {
@@ -360,7 +359,7 @@ bool Game::Queenlogic() //TODO: I think up down and left right could each be in 
         }
         else { break; }
     }
-    for (sf::Vector2i i = {start.x + 1, start.y - 1}; i.y >= 0 && i.x <= board.sqCount; i.y--, i.x++)//upRight
+    for (sf::Vector2i i = { prevTileX + 1, prevTileY - 1}; i.y >= 0 && i.x < board.sqCount; i.y--, i.x++)//upRight
     {
         if (board.gameBoard[i.x][i.y].piece == nullptr)
         {
@@ -368,15 +367,28 @@ bool Game::Queenlogic() //TODO: I think up down and left right could each be in 
         }
         else { break; }
     }
-    for (sf::Vector2i i = { start.x + 1, start.y + 1 }; i.x < board.sqCount && i.y < board.sqCount; i.x++, i.y++)//downRight
+    for (sf::Vector2i i = { prevTileX + 1, prevTileY + 1 }; i.x < board.sqCount && i.y < board.sqCount; i.x++, i.y++)//downRight
     {
         if (board.gameBoard[i.x][i.y].piece == nullptr)
         {
+
             maxDownRight++;
         }
         else { break; }
     }
+    for (sf::Vector2i i = { prevTileX - 1, prevTileY + 1 }; i.x >= 0 && i.y < board.sqCount; i.x--, i.y++)
+    {
+        if (board.gameBoard[i.x][i.y].piece == nullptr)
+        {
+            maxDownLeft++;
+        }
+        else { break; }
+    }
 
+    bool upLeft = (prevTileX - tileX <= maxUpLeft && prevTileY - tileY <= maxUpLeft && tileX < prevTileX && tileY < prevTileY && (prevTileY - tileY == prevTileX - tileX));
+    bool upRight = (tileX - prevTileX <= maxUpRight && prevTileY - tileY <= maxUpRight && tileX > prevTileX && tileY < prevTileY && (prevTileY - tileY == tileX - prevTileX));
+    bool downRight = (tileX - prevTileX <= maxDownRight && tileY - prevTileY <= maxDownRight && tileX > prevTileX && tileY > prevTileY && (tileY - prevTileY == tileX - prevTileX));
+    bool downLeft = (prevTileX - tileX <= maxDownLeft && tileY - prevTileY <= maxDownLeft && tileX < prevTileX && tileY > prevTileY && (tileY - prevTileY == prevTileX - tileX));
     if (tileX == prevTileX && prevTileY - tileY <= maxTileUp && tileY < prevTileY)//up
     {
         printf("Up logic\n");
@@ -394,17 +406,15 @@ bool Game::Queenlogic() //TODO: I think up down and left right could each be in 
 
         return true;
     }
-    else if (tileY == prevTileY && prevTileX - tileX <= maxTileRight && tileX < prevTileX)
+    else if (tileY == prevTileY && prevTileX - tileX <= maxTileLeft && tileX < prevTileX)//left
     {
         printf("Left logic\n");
 
         return true;
     }
-    else if ((prevTileX - tileX <= maxUpLeft && prevTileY - tileY <= maxUpLeft && tileX < prevTileX && tileY < prevTileY) 
-          || (tileX - prevTileX <= maxUpRight && prevTileY - tileY <= maxUpRight && tileX > prevTileX && tileY < prevTileY)
-          || (tileX - prevTileX <= maxDownRight && tileY - prevTileY <= maxDownRight && tileX > prevTileX && tileY > prevTileY))
+    else if (upLeft || upRight || downRight || downLeft)
     {
-
+        printf("Diag Logic: \n");
         if (board.gameBoard[tileX][tileY].piece == nullptr)
         {
             return true;
