@@ -273,15 +273,19 @@ bool Game::Rooklogic()
 
 bool Game::Kinglogic()
 {
-    return false;
+    return true;
 }
 
-bool Game::Queenlogic()
+bool Game::Queenlogic() //TODO: I think up down and left right could each be in their own loop
 {
     int maxTileUp = 0;
     int maxTileDown = 0;
-    //moveUp
-    for (int i = prevTileY - 1; i >= 0; i--)
+    int maxTileRight = 0;
+    int maxTileLeft = 0;
+
+    int maxDiag = 0;
+    
+    for (int i = prevTileY - 1; i >= 0; i--)//moveUp
     {
         if (board.gameBoard[tileX][i].piece == nullptr)
         {
@@ -289,8 +293,7 @@ bool Game::Queenlogic()
         }
         else { break; }
     }
-    //moveDown
-    for (int i = prevTileY + 1; i < board.sqCount; i++)
+    for (int i = prevTileY + 1; i < board.sqCount; i++)//moveDown
     {
         if (board.gameBoard[tileX][i].piece == nullptr)
         {
@@ -298,14 +301,59 @@ bool Game::Queenlogic()
         }
         else { break; }
     }
+    for (int i = prevTileX + 1; i < board.sqCount; i++)//moveRight
+    {
+        if (board.gameBoard[i][tileY].piece == nullptr)
+        {
+            maxTileRight++;
+        }
+        else { break; }
+    }
+    for (int i = prevTileX - 1; i >= 0; i--)
+    {
+        if (board.gameBoard[i][tileY].piece == nullptr)
+        {
+            maxTileLeft++;
+        }
+        else { break; }
+    }
 
-    if (tileX == prevTileX && prevTileY - tileY <= maxTileUp && tileY < prevTileY)
+    sf::Vector2i start = {prevTileX - 1, prevTileY - 1};
+    for (sf::Vector2i i = start; i.y >= 0 && i.x >= 0; i.y--, i.x--)
+    {
+        if (board.gameBoard[i.x][i.y].piece == nullptr)
+        {
+            maxDiag++;
+        }
+        else { break; }
+    }
+
+    if (tileX == prevTileX && prevTileY - tileY <= maxTileUp && tileY < prevTileY)//up
     {
         return true;
     }
-    else if (tileX == prevTileX && tileY - prevTileY <= maxTileDown && tileY > prevTileY)
+    else if (tileX == prevTileX && tileY - prevTileY <= maxTileDown && tileY > prevTileY)//down
     {
         return true;
+    }
+    else if (tileY == prevTileY && tileX - prevTileX <= maxTileRight && tileX > prevTileX)//right
+    {
+        return true;
+    }
+    else if (tileY == prevTileY && prevTileX - tileX <= maxTileRight && tileX < prevTileX)
+    {
+        return true;
+    }
+    else if (prevTileX - tileX <= maxDiag && prevTileY - tileY <= maxDiag)
+    {
+        if (board.gameBoard[tileX][tileY].piece == nullptr)
+        {
+            return true;
+        }
+        else if (board.gameBoard[tileX][tileY].piece->color != selectedPiece->color)
+        {
+            return true;
+        }
     }
     else { return false; }
 
